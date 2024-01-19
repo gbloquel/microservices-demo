@@ -1,3 +1,4 @@
 {
-  "apiArticlesEndpoint": "http://localhost:8080"
+  "apiArticlesEndpoint": "http://localhost:8080",
+  "otelEndpoint": "http://localhost:4318"
 }
