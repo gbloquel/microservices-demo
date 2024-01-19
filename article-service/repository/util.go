@@ -2,10 +2,12 @@ package repository
 
 import (
 	"context"
+	"time"
+
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
+	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
 
 var client *mongo.Client
@@ -15,7 +17,9 @@ func Initialize(mongoDbUri string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	clientOptions := options.Client().ApplyURI(mongoDbUri)
+	clientOptions := options.Client()
+	clientOptions.Monitor = otelmongo.NewMonitor()
+	clientOptions.ApplyURI(mongoDbUri)
 	var err error
 	client, err = mongo.Connect(ctx, clientOptions)
 	if err != nil {

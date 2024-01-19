@@ -2,8 +2,9 @@ package handler
 
 import (
 	"cart-service/reporitory"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func UpdateCart(ctx *gin.Context) {
@@ -15,7 +16,7 @@ func UpdateCart(ctx *gin.Context) {
 		return
 	}
 
-	err := reporitory.UpdateCart(ctx, cartId, updateCartRequest.Items)
+	err := reporitory.UpdateCart(ctx.Request.Context(), cartId, updateCartRequest.Items)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

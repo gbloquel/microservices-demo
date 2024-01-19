@@ -3,14 +3,15 @@ package handler
 import (
 	"cart-service/model"
 	"cart-service/reporitory"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetCart(ctx *gin.Context) {
 	cartId := ctx.Param("cartId")
 
-	cart, err := reporitory.GetCart(ctx, cartId)
+	cart, err := reporitory.GetCart(ctx.Request.Context(), cartId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
