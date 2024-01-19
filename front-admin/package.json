@@ -11,9 +11,17 @@
   "dependencies": {
     "@kyvg/vue3-notification": "^3.0.2",
     "@mdi/font": "7.0.96",
+    "@opentelemetry/auto-instrumentations-web": "^0.35.0",
+    "@opentelemetry/context-zone": "^1.19.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.46.0",
+    "@opentelemetry/instrumentation": "^0.46.0",
+    "@opentelemetry/resources": "^1.19.0",
+    "@opentelemetry/sdk-trace-base": "^1.19.0",
+    "@opentelemetry/sdk-trace-web": "^1.19.0",
     "core-js": "^3.29.0",
     "pinia": "^2.0.0",
     "roboto-fontface": "*",
+    "rollup-plugin-node-polyfills": "0.2.1",
     "vue": "^3.2.0",
     "vue-router": "^4.0.0",
     "vuetify": "^3.0.0"

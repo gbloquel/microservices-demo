@@ -12,7 +12,7 @@ import App from './App.vue'
 
 // Composables
 import { createApp } from 'vue'
-
+import './tracing'
 const app = createApp(App)
 
 registerPlugins(app)
