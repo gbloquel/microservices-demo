@@ -35,26 +35,28 @@ export const provider = new WebTracerProvider({
 
 getEndpoints().then(endpointsConfig => {
   
-  const traceExporter = new OTLPTraceExporter({
-    url: endpointsConfig.otelEndpoint,
-    headers: {
-      'Content-Type': 'application/json',
-      }    
-  })
-
-  provider.addSpanProcessor(new SimpleSpanProcessor(traceExporter));
-
-  provider.register({
-    contextManager: new ZoneContextManager(),
-
-  });
-
-  // Registering instrumentations
-  registerInstrumentations({
-    instrumentations: [
-      getWebAutoInstrumentations(),
-    ],
-  });
-  console.log('Tracing service started');
+  if(endpointsConfig.otelEndpoint !== "") {
+    const traceExporter = new OTLPTraceExporter({
+      url: endpointsConfig.otelEndpoint,
+      headers: {
+        'Content-Type': 'application/json',
+        }    
+    })
+  
+    provider.addSpanProcessor(new SimpleSpanProcessor(traceExporter));
+  
+    provider.register({
+      contextManager: new ZoneContextManager(),
+  
+    });
+  
+    // Registering instrumentations
+    registerInstrumentations({
+      instrumentations: [
+        getWebAutoInstrumentations(),
+      ],
+    });
+    console.log('Tracing service started');
+  }
 })
 
