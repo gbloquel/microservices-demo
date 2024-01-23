@@ -10,8 +10,6 @@ on:
   pull_request:
     branches:
       - 'main'
-env:
-  IMAGE_PREFIX: microservice-demo
 
 jobs:
   docker-api-cart:
@@ -26,7 +24,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            name=ghcr.io/${{ env.IMAGE_NAME }}/cart-service
+            name=ghcr.io/${{ github.repository }}/cart-service
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -73,7 +71,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            name=ghcr.io/${{ env.IMAGE_NAME }}/article-service
+            name=ghcr.io/${{ github.repository }}/article-service
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -120,7 +118,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            name=ghcr.io/${{ env.IMAGE_NAME }}/frontend-user
+            name=ghcr.io/${{ github.repository }}/frontend-user
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -167,7 +165,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            name=ghcr.io/${{ env.IMAGE_NAME }}/frontend-admin
+            name=ghcr.io/${{ github.repository }}/frontend-admin
           tags: |
             type=ref,event=branch
             type=ref,event=pr
