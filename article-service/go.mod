@@ -4,10 +4,12 @@ go 1.20
 
 require (
 	github.com/gin-contrib/cors v1.4.0
+	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-gonic/gin v1.9.1
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.17.0
+	github.com/toorop/gin-logrus v0.0.0-20210225092905-2c785434f26f
 	go.mongodb.org/mongo-driver v1.13.0
 )
 
@@ -22,6 +24,7 @@ require (
 	github.com/go-playground/validator/v10 v10.14.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.17.0 // indirect

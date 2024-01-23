@@ -1,0 +1,4 @@
+listen: ":8081"
+redisURI: "redis://localhost:6379"
+logLevel: "debug"
+environment: "dev"
