@@ -6,6 +6,7 @@ import (
 	"cart-service/middlewares"
 	"cart-service/repository"
 	"context"
+	"github.com/Depado/ginprom"
 	"os"
 	"strings"
 	"time"
@@ -33,17 +34,16 @@ var (
 )
 
 func main() {
-	if os.Getenv("ENABLE_TRACING") == "1" {
-		log.Info("Tracing enabled.")
-		cleanup := initTracer()
-		defer cleanup(context.Background())
-	} else {
-		log.Info("Tracing disabled.")
-	}
-	log.Infoln("-= Cart service =-")
 	loadConfig()
 	logger.SetupLogging()
 	logger.Logger.Infoln("-= Cart service =-")
+	if os.Getenv("ENABLE_TRACING") == "1" {
+		logger.Logger.Infoln("Tracing enabled.")
+		cleanup := initTracer()
+		defer cleanup(context.Background())
+	} else {
+		logger.Logger.Infoln("Tracing disabled.")
+	}
 	initDatabase()
 	loadAPIServer()
 }
@@ -127,6 +127,14 @@ func initDatabase() {
 // This function is blocking: it will wait until the server returns an error
 func loadAPIServer() {
 	Router := gin.New()
+	prometheus := ginprom.New(
+		ginprom.Engine(Router),
+		ginprom.Namespace("cart_srv"),
+		ginprom.Subsystem("gin"),
+		ginprom.Path("/metrics"),
+		ginprom.Ignore("/metrics", "/healthz"),
+	)
+
 	Router.Use(otelgin.Middleware(serviceName))
 	Router.Use(cors.New(cors.Config{
 		//AllowOrigins:     []string{"http://localhost:3001"},
@@ -142,7 +150,8 @@ func loadAPIServer() {
 
 	Router.Use(
 		middlewares.LoggingMiddleware(logger.Logger, "/", "/healthz"),
-		otelgin.Middleware(serviceName),		
+		prometheus.Instrument(),
+		otelgin.Middleware(serviceName),
 		requestid.New(),
 		gin.Recovery(),
 	)

@@ -6,6 +6,7 @@ import (
 	"article-service/middlewares"
 	"article-service/repository"
 	"context"
+	"github.com/Depado/ginprom"
 	"os"
 	"strings"
 	"time"
@@ -13,7 +14,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
@@ -33,18 +33,16 @@ var (
 )
 
 func main() {
-
-	if os.Getenv("ENABLE_TRACING") == "1" {
-		log.Info("Tracing enabled.")
-		cleanup := initTracer()
-		defer cleanup(context.Background())
-	} else {
-		log.Info("Tracing disabled.")
-	}
-
 	loadConfig()
 	logger.SetupLogging()
 	logger.Logger.Infoln("-= Article Service =-")
+	if os.Getenv("ENABLE_TRACING") == "1" {
+		logger.Logger.Info("Tracing enabled.")
+		cleanup := initTracer()
+		defer cleanup(context.Background())
+	} else {
+		logger.Logger.Info("Tracing disabled.")
+	}
 	initDatabase()
 	loadAPIServer()
 }
@@ -68,7 +66,7 @@ func initTracer() func(context.Context) error {
 	)
 
 	if err != nil {
-		log.Fatalf("Failed to create exporter: %v", err)
+		logger.Logger.Fatalf("Failed to create exporter: %v", err)
 	}
 	resources, err := resource.New(
 		context.Background(),
@@ -78,7 +76,7 @@ func initTracer() func(context.Context) error {
 		),
 	)
 	if err != nil {
-		log.Fatalf("Could not set resources: %v", err)
+		logger.Logger.Fatalf("Could not set resources: %v", err)
 	}
 
 	otel.SetTracerProvider(
@@ -98,19 +96,19 @@ func loadConfig() {
 	viper.SetDefault("mongodbUri", "mongodb://localhost:27017/alpha-articles")
 	err := viper.BindEnv("mongodbUri", "MONGODB_URI")
 	if err != nil {
-		log.Warnln(err)
+		logger.Logger.Warnln(err)
 	}
 
 	viper.SetDefault("logLevel", "info")
 	err = viper.BindEnv("logLevel", "LOG_LEVEL")
 	if err != nil {
-		log.Warnln(err)
+		logger.Logger.Warnln(err)
 	}
 
 	viper.SetConfigFile("config.yaml")
 	viper.AddConfigPath("/etc/article-service/")
 	if err := viper.ReadInConfig(); err != nil {
-		log.Warnln(err)
+		logger.Logger.Warnln(err)
 	}
 }
 
@@ -128,6 +126,14 @@ func initDatabase() {
 // This function is blocking: it will wait until the server returns an error
 func loadAPIServer() {
 	Router := gin.New()
+	prometheus := ginprom.New(
+		ginprom.Engine(Router),
+		ginprom.Namespace("article_srv"),
+		ginprom.Subsystem("gin"),
+		ginprom.Path("/metrics"),
+		ginprom.Ignore("/metrics", "/healthz"),
+	)
+
 	Router.Use(otelgin.Middleware(serviceName))
 	Router.Use(cors.New(cors.Config{
 		//AllowOrigins:     []string{"http://localhost:3001"},
@@ -142,6 +148,7 @@ func loadAPIServer() {
 	}))
 
 	Router.Use(middlewares.LoggingMiddleware(logger.Logger, "/", "/healthz"))
+	Router.Use(prometheus.Instrument())
 	Router.Use(requestid.New())
 	Router.Use(gin.Recovery())
 
@@ -154,5 +161,5 @@ func loadAPIServer() {
 
 	listenAddress := viper.GetString("listen")
 	err := Router.Run(listenAddress)
-	log.Panicln(err)
+	logger.Logger.Panicln(err)
 }
