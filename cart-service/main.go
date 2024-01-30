@@ -7,7 +7,7 @@ import (
 	"cart-service/repository"
 	"context"
 	"os"
-	"strings"	
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -33,6 +33,14 @@ var (
 )
 
 func main() {
+	if os.Getenv("ENABLE_TRACING") == "1" {
+		log.Info("Tracing enabled.")
+		cleanup := initTracer()
+		defer cleanup(context.Background())
+	} else {
+		log.Info("Tracing disabled.")
+	}
+	log.Infoln("-= Cart service =-")
 	loadConfig()
 	logger.SetupLogging()
 	logger.Logger.Infoln("-= Cart service =-")
@@ -119,6 +127,7 @@ func initDatabase() {
 // This function is blocking: it will wait until the server returns an error
 func loadAPIServer() {
 	Router := gin.New()
+	Router.Use(otelgin.Middleware(serviceName))
 	Router.Use(cors.New(cors.Config{
 		//AllowOrigins:     []string{"http://localhost:3001"},
 		AllowMethods:     []string{"GET", "PUT", "DELETE"},
