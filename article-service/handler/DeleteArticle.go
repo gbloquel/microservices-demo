@@ -26,7 +26,7 @@ func DeleteArticle(ctx *gin.Context) {
 		logger.Logger.Errorf(errorMsgFormat, "DeleteArticle", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error":     err.Error(),
-			"articleId": articleId,
+			"articleId": articleID,
 		})
 		return
 	}
