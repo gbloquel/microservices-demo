@@ -5,6 +5,7 @@ import (
 	"article-service/logger"
 	"article-service/middlewares"
 	"article-service/repository"
+	"github.com/Depado/ginprom"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -58,6 +59,14 @@ func initDatabase() {
 // This function is blocking: it will wait until the server returns an error
 func loadAPIServer() {
 	Router := gin.New()
+	prometheus := ginprom.New(
+		ginprom.Engine(Router),
+		ginprom.Namespace("article_srv"),
+		ginprom.Subsystem("gin"),
+		ginprom.Path("/metrics"),
+		ginprom.Ignore("/metrics", "/healthz"),
+	)
+
 	Router.Use(cors.New(cors.Config{
 		//AllowOrigins:     []string{"http://localhost:3001"},
 		AllowMethods:     []string{"GET", "POST", "DELETE"},
@@ -71,6 +80,7 @@ func loadAPIServer() {
 	}))
 
 	Router.Use(middlewares.LoggingMiddleware(logger.Logger, "/", "/healthz"))
+	Router.Use(prometheus.Instrument())
 	Router.Use(requestid.New())
 	Router.Use(gin.Recovery())
 

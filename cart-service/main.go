@@ -5,6 +5,7 @@ import (
 	"cart-service/logger"
 	"cart-service/middlewares"
 	"cart-service/repository"
+	"github.com/Depado/ginprom"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -58,6 +59,14 @@ func initDatabase() {
 // This function is blocking: it will wait until the server returns an error
 func loadAPIServer() {
 	Router := gin.New()
+	prometheus := ginprom.New(
+		ginprom.Engine(Router),
+		ginprom.Namespace("cart_srv"),
+		ginprom.Subsystem("gin"),
+		ginprom.Path("/metrics"),
+		ginprom.Ignore("/metrics", "/healthz"),
+	)
+
 	Router.Use(cors.New(cors.Config{
 		//AllowOrigins:     []string{"http://localhost:3001"},
 		AllowMethods:     []string{"GET", "PUT", "DELETE"},
@@ -72,6 +81,7 @@ func loadAPIServer() {
 
 	Router.Use(
 		middlewares.LoggingMiddleware(logger.Logger, "/", "/healthz"),
+		prometheus.Instrument(),
 		requestid.New(),
 		gin.Recovery(),
 	)
