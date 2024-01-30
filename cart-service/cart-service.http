@@ -1,8 +1,8 @@
-GET http://localhost:8080/
+GET http://localhost:8081/
 Accept: application/json
 
 ### Health probe
-GET http://localhost:8080/healthz
+GET http://localhost:8081/healthz
 Accept: application/json
 
 ### Get cart with id=1

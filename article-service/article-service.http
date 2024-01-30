@@ -15,5 +15,9 @@ Content-Type: application/json
 }
 
 ###
+GET http://localhost:8080/article/
+Accept: application/json
+
+###
 DELETE http://localhost:8080/article/655cabd93dea2ba2e45e3159/
 Accept: application/json

@@ -1,2 +1,4 @@
 listen: ":8080"
-mongodbUri: "mongodb://localhost:27017/alpha-articles"
+mongodbURI: "mongodb://localhost:27017/alpha-articles"
+logLevel: "debug"
+environment: "dev"

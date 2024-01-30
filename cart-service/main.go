@@ -2,19 +2,24 @@ package main
 
 import (
 	"cart-service/handler"
-	"cart-service/reporitory"
+	"cart-service/logger"
+	"cart-service/middlewares"
+	"cart-service/repository"
+	"time"
+
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"time"
 )
 
 func main() {
-	log.Infoln("-= Cart service =-")
 	loadConfig()
+	logger.SetupLogging()
+	logger.Logger.Infoln("-= Cart service =-")
 	initDatabase()
-	loadApiServer()
+	loadAPIServer()
 }
 
 // loadConfig define the default values and loads the user configuration from config.yaml
@@ -23,28 +28,35 @@ func loadConfig() {
 	viper.SetDefault("redisUri", "redis://localhost:6379")
 	err := viper.BindEnv("redisUri", "REDIS_URI")
 	if err != nil {
+		logger.Logger.Warnln(err)
+	}
+
+	viper.SetDefault("logLevel", "info")
+	err = viper.BindEnv("logLevel", "LOG_LEVEL")
+	if err != nil {
 		log.Warnln(err)
 	}
+
 	viper.SetConfigFile("config.yaml")
 	viper.AddConfigPath("/etc/article-cart/")
 	if err := viper.ReadInConfig(); err != nil {
-		log.Warnln(err)
+		logger.Logger.Warnln(err)
 	}
 }
 
 // initDatabase initialize the database connection
 func initDatabase() {
-	redisUri := viper.GetString("redisUri")
-	if err := reporitory.Initialize(redisUri); err != nil {
-		log.Errorf("Failed to connect to %s", redisUri)
-		log.Panicln(err)
+	redisURI := viper.GetString("redisURI")
+	if err := repository.Initialize(redisURI); err != nil {
+		logger.Logger.Errorf("Failed to connect to %s", redisURI)
+		logger.Logger.Panicln(err)
 	}
-	log.Infof("Connected to %s", redisUri)
+	logger.Logger.Infof("Connected to %s", redisURI)
 }
 
-// loadApiServer initialize the API server with a cors middleware and define routes to be served.
+// loadAPIServer initialize the API server with a cors middleware and define routes to be served.
 // This function is blocking: it will wait until the server returns an error
-func loadApiServer() {
+func loadAPIServer() {
 	Router := gin.New()
 	Router.Use(cors.New(cors.Config{
 		//AllowOrigins:     []string{"http://localhost:3001"},
@@ -59,7 +71,8 @@ func loadApiServer() {
 	}))
 
 	Router.Use(
-		gin.LoggerWithWriter(gin.DefaultWriter, "/", "/healthz"),
+		middlewares.LoggingMiddleware(logger.Logger, "/", "/healthz"),
+		requestid.New(),
 		gin.Recovery(),
 	)
 
