@@ -37,7 +37,7 @@ func AddArticle(ctx *gin.Context) {
 	}
 
 	// Add the validated article to the repository
-	err := repository.AddArticle(ctx, addArticleRequest.toArticle())
+	err := repository.AddArticle(ctx.Request.Context(), addArticleRequest.toArticle())
 	if err != nil {
 		logger.Logger.Errorf(errorMsgFormat, "AddArticle", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
