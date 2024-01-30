@@ -8,8 +8,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 // AddArticle is a handler function for adding an article.
