@@ -30,7 +30,7 @@ func UpdateCart(ctx *gin.Context) {
 	}
 
 	// Call the UpdateCart function from the repository to update the cart with the specified items
-	err := repository.UpdateCart(ctx, cartID, updateCartRequest.Items)
+	err := repository.UpdateCart(ctx.Request.Context(), cartID, updateCartRequest.Items)
 	if err != nil {
 		logger.Logger.Errorf("UpdateCart with cartId %s - error - %s", cartID, err.Error())
 

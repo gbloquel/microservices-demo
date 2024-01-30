@@ -21,7 +21,7 @@ func GetCart(ctx *gin.Context) {
 	logger.Logger.Infof("GetCart - Retrieve cart with ID %s from database", cartID)
 
 	// Attempt to retrieve the cart using the GetCart function from the repository
-	cart, err := repository.GetCart(ctx, cartID)
+	cart, err := repository.GetCart(ctx.Request.Context(), cartID)
 	if err != nil {
 		logger.Logger.Errorf("GetCart - Cart with ID %s - error - %s", cartID, err.Error())
 		// Handle repository error and return Internal Server Error response
