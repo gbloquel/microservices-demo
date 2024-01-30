@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
 
 var client *mongo.Client
@@ -21,7 +22,9 @@ func Initialize(mongoDbURI string) error {
 	defer cancel()
 
 	// Configure the MongoDB client with the provided URI
-	clientOptions := options.Client().ApplyURI(mongoDbURI)
+	clientOptions := options.Client()
+	clientOptions.Monitor = otelmongo.NewMonitor()
+	clientOptions.ApplyURI(mongoDbURI)
 	var err error
 
 	// Connect to the MongoDB database

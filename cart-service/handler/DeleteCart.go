@@ -18,7 +18,7 @@ func DeleteCart(ctx *gin.Context) {
 	logger.Logger.Infof("DeleteCart - Delete cart with ID %s from database", cartID)
 
 	// Attempt to delete the cart using the DeleteCart function from the repository
-	err := repository.DeleteCart(ctx, cartID)
+	err := repository.DeleteCart(ctx.Request.Context(), cartID)
 	if err != nil {
 		// Handle repository error and return Internal Server Error response
 		logger.Logger.Errorf("DeleteCart with cartId %s - error - %s", cartID, err.Error())
